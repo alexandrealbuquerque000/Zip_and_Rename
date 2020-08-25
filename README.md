@@ -9,16 +9,16 @@
          ├── Título hq1/
          │   ├── Capítulo1/
          │   │   ├── Página_1
-         │   │   └── Página_2
+         │   │   ├── Página_2
          │   │   └── ...
          │   └── Capítulo2/
          │       ├── Página_1
-         │       └── Página_2
+         │       ├── Página_2
          │       └── ...
          │   
          └── Título hq2/
              └── Capítulo1/
                  ├── Página_1
-                 └── Página_2
+                 ├── Página_2
                  └── ...
 
