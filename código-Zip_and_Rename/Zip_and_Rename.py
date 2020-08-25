@@ -7,6 +7,7 @@ import zipfile # Para compactar os arquivos
 import copy # Para copiar os dados dos arquivos em uma lista
 import time # Para dar uma ideia de movimento no loading (meramente estético)
 from pathlib import Path # Para verificar se o diretório é válido
+import tkinter, tkinter.filedialog as tf # Para abrir o explorador de arquivos
 
 '''
 Modelo da coleta de dados:
@@ -96,8 +97,25 @@ def colectdata(hqpath):
 
     return alldata
 
-# Função para compactar os arquivos
-def compacthqs(hqpath, exttocompac, delfiles, aux3):
+# Função para compactar/descompactar os arquivos
+def ziporunziphqs(hqpath, exttoziporunzip, ziporunzip, delfiles, aux3):
+
+    def closehq(ziporunzip):
+        nonlocal hq, testpass, folder, file
+
+        try:
+            hq
+        except(UnboundLocalError, NameError):
+            pass
+        else:
+            if testpass==1:
+                hq.close()
+        if 's' in delfiles and testpass==1:
+            if ziporunzip==1:
+                shutil.rmtree(folder)
+            elif (file.lower()).endswith(exttoziporunzip):
+                zipfiledir=Path(folder+('\{}').format(file))
+                zipfiledir.unlink()
 
     alldata=copy.deepcopy(colectdata(hqpath))
 
@@ -112,15 +130,29 @@ def compacthqs(hqpath, exttocompac, delfiles, aux3):
             cap=alldata[loop6][2][loop7][0]
             titlefolder=(hqpath + '\{}').format(title)
             folder=(titlefolder + '\{}').format(cap) 
-            if any((file.lower()).endswith(exttocompac)==True for file in files):
-                hq = zipfile.ZipFile(folder+'.zip', 'w')
-                print('Compactando '+ cap)
+            if any((file.lower()).endswith(exttoziporunzip)==True for file in files):
+                if ziporunzip==1:
+                    hq = zipfile.ZipFile(folder+'.zip', 'w')
+                    print('Compactando '+ cap)
+                else:
+                    print('Descompactando '+ cap)
                 testpass=1
             else:
                 testpass=0
             for file in files:
-                if (file.lower()).endswith(exttocompac):
-                    hq.write(os.path.join(folder, file), os.path.relpath(os.path.join(folder,file), str(folder)), compress_type = zipfile.ZIP_DEFLATED)
+                if (file.lower()).endswith(exttoziporunzip):
+                    if ziporunzip==0:
+                        try:
+                            hq = zipfile.ZipFile(folder+('\{}').format(file), 'r')
+                        except (FileNotFoundError):
+                            pass
+                        else:
+                            hq.extractall(folder)
+                    else:
+                        try:
+                            hq.write(os.path.join(folder, file), os.path.relpath(os.path.join(folder,file), str(folder)), compress_type = zipfile.ZIP_DEFLATED)
+                        except (FileNotFoundError):
+                            pass
                 else:
                     if 's' in delfiles and testpass==1:
                         try:
@@ -130,33 +162,34 @@ def compacthqs(hqpath, exttocompac, delfiles, aux3):
                         finally:
                             savefiles=((titlefolder+'./{} (others_extensions)').format(cap))
                         shutil.copy(((folder+'\{}').format(file)), savefiles)
-            try:
-                hq
-            except(UnboundLocalError, NameError):
-                pass
-            else:
-                if testpass==1:
-                    hq.close()
-            if 's' in delfiles and testpass==1:
-                shutil.rmtree(folder)
+                if ziporunzip==0:
+                    closehq(ziporunzip)
+            if ziporunzip==1:
+                closehq(ziporunzip)
     if aux3==None:
         input('\nProcesso concluído com sucesso!')
     os.system("cls")
 
 # Função para renomear extensões de arquivos
-def renameext(hqpath, exttorename, newext, aux3):
+def renameext(hqpath, hqmode, exttorename, newext, aux3):
     for folder, subfolders, files in os.walk(hqpath):
+        numpag=-1
         for file in files:
             loading(aux3)
-            if (file.lower()).endswith(exttorename):
+            if ((file.lower()).endswith(exttorename)) or (hqmode==1 and ((file.lower()).endswith(newext))):
+                numpag=numpag+1
+                if hqmode==1:
+                    toformat=('Page'+str(numpag))
+                else:
+                    toformat=((os.path.splitext(file))[0])
                 try:
-                    os.rename((folder+'\{}').format(file), (folder+'\{}').format((((os.path.splitext(file))[0])+((os.path.splitext(file))[1]).lower()).replace(exttorename, newext)))
+                    os.rename((folder+'\{}').format(file), (folder+'\{}').format((toformat+((os.path.splitext(file))[1]).lower()).replace(exttorename, newext)))
                 except (FileExistsError):
-                    os.rename((folder+'\{}').format(file), (folder+'\{}').format((((os.path.splitext(file))[0])+'_(repeated)'+((os.path.splitext(file))[1]).lower()).replace(exttorename, newext)))
+                    os.rename((folder+'\{}').format(file), (folder+'\{}').format((toformat+'_(repeated)'+((os.path.splitext(file))[1]).lower()).replace(exttorename, newext)))
     if aux3==None:
         input('\n\nProcesso concluído com sucesso!')
 
-# Função para iniciar o programa
+
 def run():
     reboot='s'
     while 's' in reboot:
@@ -164,29 +197,46 @@ def run():
         print('-'*16)
         print(' Zip and Rename')
         print('-'*16)
-        hqpath=input('\nDigite o diretório da pasta que contém todos os arquivos que deseja manipular: ')
+        root = tkinter.Tk()
+        root.geometry('0x0')
+        hqpathchoose=('Selecione o diretório da pasta que contém todos os arquivos que deseja manipular: ')
+        print('\n'+hqpathchoose)
+        hqpath = tf.askdirectory(parent=root, initialdir="/",title =hqpathchoose)
+        root.quit()       
+        if hqpath=='':
+            print('\nOpção cancelada.\n\nTente novamente')
+            hqpath=input('\nDigite o diretório da pasta que contém todos os arquivos que deseja manipular: ')
         while ((Path(hqpath)).is_dir())==False:
             print("\nEsse diretório não existe.\n\nTente novamente.")
             hqpath=input('\nDigite o diretório da pasta que contém todos os arquivos que deseja manipular: ')
-        compacquestion=leiastr("Deseja compactar arquivos? ")
+        compacquestion=leiastr("Deseja compactar/descompactar arquivos ou nenhuma das opções? ")
         if 'hq' in compacquestion:
             compacquestion='s'
             hqmode=1
         else:
             hqmode=0 
-        if 's' in compacquestion:
+        if 'n' not in compacquestion:
             if hqmode==1:
-                exttorename='.png'
-                newext='.jpg'
-                renameext(hqpath, exttorename, newext, 1)
-                exttocompac='.jpg'
-                delfiles='s'
+                exttorename='.jpg'
+                newext='.png'
                 aux3=1
+                renameext(hqpath, hqmode, exttorename, newext, aux3)
+                exttoziporunzip='.png'
+                delfiles='s'
+                ziporunzip=1
             else:
-                exttocompac=addpoint(input('\nDigite o tipo de extensão dos arquivos que deseja compactar: ').lower())
-                delfiles=leiastr('Deseja excluir os arquivos após a compactação? ')
+                if 'des' not in compacquestion:
+                    exttoziporunzip=addpoint(input('\nDigite o tipo de extensão dos arquivos que deseja compactar: ').lower())
+                    delfiles=('Deseja excluir os arquivos após a compactação? ')
+                    ziporunzip=1
+                else:
+                    print("\nO programa apenas descompactará arquivos '.zip'.")
+                    exttoziporunzip='.zip'
+                    delfiles=('Deseja excluir o arquivo após a descompactação? ')
+                    ziporunzip=0
+                delfiles=leiastr(delfiles)
                 aux3=None
-            compacthqs(hqpath, exttocompac, delfiles, aux3)
+            ziporunziphqs(hqpath, exttoziporunzip, ziporunzip, delfiles, aux3)
         if hqmode==1:
             extchange='s'
             pass
@@ -199,7 +249,8 @@ def run():
             else:
                 exttorename=addpoint(input('\nDigite o tipo de extensão que deseja mudar: ').lower())
                 newext=addpoint(input('\nDigite o novo tipo de extensão: ').lower())
-            renameext(hqpath, exttorename, newext, None)
+            aux3=None
+            renameext(hqpath, hqmode, exttorename, newext, aux3)
         reboot=leiastr("Deseja reiniciar o programa? ")
 
 
