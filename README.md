@@ -17,7 +17,7 @@
          │       └── ...
          │   
          └── Título hq2/
-             ├── Capítulo1/
+             └── Capítulo1/
                  ├── Página_1
                  └── Página_2
                  └── ...
