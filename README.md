@@ -1,5 +1,5 @@
 # Zip_and_Rename
- Programa que pode zipar quaisquer arquivos com uma extensão especificada pelo usuário ou renomear tal extensão.
+ Programa que pode compactar/descompactar quaisquer arquivos com uma extensão especificada pelo usuário ou renomear tal extensão.
  Este script pode funcionar com qualquer tipo de arquivo. Contudo, ele foi criado especificamente para funcionar em conjunto com o programa [DManga](https://github.com/dkeas/DManga). Portanto, a disposição das pastas e subpastas devem obedecer um certo padrão.
  
  __Exemplo:__
