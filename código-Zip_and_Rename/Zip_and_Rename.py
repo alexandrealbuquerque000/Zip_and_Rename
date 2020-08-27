@@ -250,6 +250,7 @@ def run():
                 exttorename=addpoint(input('\nDigite o tipo de extensão que deseja mudar: ').lower())
                 newext=addpoint(input('\nDigite o novo tipo de extensão: ').lower())
             aux3=None
+            hqmode=0
             renameext(hqpath, hqmode, exttorename, newext, aux3)
         reboot=leiastr("Deseja reiniciar o programa? ")
 
