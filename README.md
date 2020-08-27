@@ -21,4 +21,8 @@
                  ├── Página_1
                  ├── Página_2
                  └── ...
+                 
+```
+### Obs:
+Se for digitado 'hq' quando o programa pergunta se o usuário quer compactar/descompactar arquivos, o programa iniciará com configurações predefinidas para histórias em quadrinhos, ou seja, compactará os arquivos de imagem por capítulos e os converterão em '.cbz'.
 
