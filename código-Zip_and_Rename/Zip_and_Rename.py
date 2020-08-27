@@ -202,7 +202,7 @@ def run():
         hqpathchoose=('Selecione o diretório da pasta que contém todos os arquivos que deseja manipular: ')
         print('\n'+hqpathchoose)
         hqpath = tf.askdirectory(parent=root, initialdir="/",title =hqpathchoose)
-        root.quit()       
+        root.destroy()       
         if hqpath=='':
             print('\nOpção cancelada.\n\nTente novamente')
             hqpath=input('\nDigite o diretório da pasta que contém todos os arquivos que deseja manipular: ')
